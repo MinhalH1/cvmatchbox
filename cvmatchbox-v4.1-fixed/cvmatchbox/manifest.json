@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "CVmatchbox — AI Job Analyzer",
+  "version": "4.1.0",
+  "description": "Match your CV to any job on LinkedIn, Indeed, Glassdoor & Seek. By Minhal Haider.",
+  "permissions": ["activeTab", "storage", "scripting", "tabs"],
+  "host_permissions": [
+    "https://*.linkedin.com/*",
+    "https://*.indeed.com/*",
+    "https://*.glassdoor.com/*",
+    "https://*.seek.com/*",
+    "https://*.seek.com.au/*",
+    "https://*.seek.co.nz/*",
+    "https://api.groq.com/*",
+    "https://raw.githubusercontent.com/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["tab.html", "src/tab.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
