@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>CVmatchbox</title>
+<style>
+/* ── System fonts only — no CDN, no external requests ── */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bg: #f5f6fa;
+  --white: #ffffff;
+  --border: #e2e5ef;
+  --text: #1a1d2e;
+  --sub: #52566e;
+  --muted: #9399b2;
+  --accent: #4f46e5;
+  --alt: #ede9fe;
+  --green: #059669;
+  --glt: #d1fae5;
+  --red: #dc2626;
+  --rlt: #fee2e2;
+  --amber: #d97706;
+  --alt2: #fef3c7;
+  --blue: #0369a1;
+  --blt: #e0f2fe;
+  --r: 9px;
+  --rs: 6px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  width: 460px;
+  min-height: 500px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-y: auto;
+  overflow-x: hidden;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* ── Update banner ── */
+#updateBanner {
+  display: none;
+  background: #4338ca;
+  color: #fff;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* ── Header ── */
+.hdr {
+  background: var(--white);
+  border-bottom: 2px solid var(--border);
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.logo {
+  width: 32px; height: 32px;
+  background: #4f46e5;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.brand { flex: 1; }
+.brand h1 { font-size: 15px; font-weight: 800; letter-spacing: -0.3px; }
+.brand h1 span { color: var(--accent); }
+.brand p { font-size: 11px; color: var(--muted); }
+.hdr-btns { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.full-tab-btn {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--rs);
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sub);
+  cursor: pointer;
+  font-family: var(--font);
+  white-space: nowrap;
+}
+.full-tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+.plan-pill {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.pp-free { background: var(--glt); color: var(--green); border: 1px solid #6ee7b7; }
+.pp-starter { background: var(--blt); color: var(--blue); border: 1px solid #7dd3fc; }
+.pp-pro { background: var(--alt); color: var(--accent); border: 1px solid #a5b4fc; }
+.pp-agency { background: var(--alt2); color: var(--amber); border: 1px solid #fcd34d; }
+
+/* ── Usage bar ── */
+.usage-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.u-lbl { font-size: 11px; font-weight: 600; color: var(--sub); white-space: nowrap; }
+.u-track { flex: 1; height: 4px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.u-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width 0.4s; }
+.u-fill.warn { background: var(--amber); }
+.u-fill.over { background: var(--red); }
+.u-num { font-size: 11px; font-weight: 700; color: var(--sub); white-space: nowrap; }
+
+/* ── Tabs ── */
+.tabs {
+  background: var(--white);
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  overflow-x: auto;
+  padding: 0 4px;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-btn {
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  font-family: var(--font);
+  flex-shrink: 0;
+  margin-bottom: -2px;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Panels ── */
+.panel { display: none; padding: 14px; }
+.panel.active { display: block; }
+
+/* ── Cards ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 13px;
+  margin-bottom: 10px;
+}
+.card-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.card-title .badge {
+  margin-left: auto;
+  font-size: 10.5px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+/* ── Forms ── */
+label { display: block; font-size: 12px; font-weight: 600; color: var(--sub); margin-bottom: 5px; }
+textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--rs);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+  line-height: 1.6;
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
+}
+textarea:focus { border-color: var(--accent); background: var(--white); }
+textarea::placeholder { color: var(--muted); }
+input[type=text], input[type=password] {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--rs);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 9px 12px;
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+}
+input:focus { border-color: var(--accent); background: var(--white); }
+input::placeholder { color: var(--muted); }
+select {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--rs);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 9px 12px;
+  outline: none;
+  cursor: pointer;
+}
+select:focus { border-color: var(--accent); }
+
+/* ── Buttons ── */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--rs);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.btn-primary:hover { background: #3730a3; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary {
+  padding: 8px 14px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--rs);
+  color: var(--sub);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.ok-msg { color: var(--green); font-size: 12px; font-weight: 600; margin-top: 6px; display: none; }
+.info-box {
+  background: var(--blt);
+  border: 1px solid #7dd3fc;
+  border-radius: var(--rs);
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #0c4a6e;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+.warn-box {
+  background: var(--alt2);
+  border: 1px solid #fcd34d;
+  border-radius: var(--rs);
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #78350f;
+  margin-bottom: 11px;
+  line-height: 1.6;
+}
+
+/* ── No job state ── */
+.no-job { text-align: center; padding: 30px 16px; }
+.no-job .icon { font-size: 40px; margin-bottom: 12px; }
+.no-job h2 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.no-job p { color: var(--sub); font-size: 12.5px; line-height: 1.7; }
+.plat-row { display: flex; justify-content: center; gap: 7px; flex-wrap: wrap; margin-top: 12px; }
+.plat-tag { font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--white); color: var(--sub); }
+
+/* ── Job banner ── */
+.job-banner {
+  background: var(--alt);
+  border: 1.5px solid #a5b4fc;
+  border-radius: var(--r);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: none;
+}
+.jb-plat { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-right: 6px; display: inline-block; }
+.jb-li { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.jb-in { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.jb-gl { background: var(--glt); color: #064e3b; border: 1px solid #6ee7b7; }
+.jb-se { background: var(--alt2); color: #78350f; border: 1px solid #fcd34d; }
+.jb-un { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+.jb-title { font-size: 13px; font-weight: 700; margin-top: 4px; }
+.jb-co { font-size: 11.5px; color: var(--sub); margin-top: 2px; }
+
+/* ── Loading ── */
+.loading { text-align: center; padding: 40px 16px; }
+.spinner {
+  width: 34px; height: 34px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.loading p { font-size: 12px; color: var(--muted); }
+
+/* ── Error ── */
+.error-state { text-align: center; padding: 28px 16px; }
+.error-state .ei { font-size: 32px; margin-bottom: 10px; }
+.error-state p { font-size: 12.5px; color: var(--sub); line-height: 1.7; margin-bottom: 14px; }
+
+/* ── Paywall ── */
+.paywall { text-align: center; padding: 26px 14px; }
+.paywall .lock { font-size: 40px; margin-bottom: 12px; }
+.paywall h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.paywall > p { font-size: 12.5px; color: var(--sub); line-height: 1.7; margin-bottom: 16px; }
+.pw-row { display: flex; gap: 7px; margin-bottom: 14px; }
+.pw-card {
+  flex: 1; border: 2px solid var(--border); border-radius: var(--r);
+  padding: 11px 8px; text-align: center; cursor: pointer;
+  background: var(--white);
+}
+.pw-card.sel { border-color: var(--accent); background: var(--alt); }
+.pw-card .pn { font-size: 13px; font-weight: 700; }
+.pw-card .pp { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 2px; }
+.pw-card .ps { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+
+/* ── Match card ── */
+.match-card {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: var(--r);
+  padding: 15px;
+  margin-bottom: 10px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ring-wrap { position: relative; flex-shrink: 0; }
+.ring { width: 70px; height: 70px; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 5; stroke-linecap: round; }
+.ring .track { stroke: rgba(255,255,255,0.2); }
+.ring .fill { stroke: #fff; stroke-dasharray: 188; stroke-dashoffset: 188; transition: stroke-dashoffset 1s ease; }
+.ring-num { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: #fff; transform: rotate(90deg); }
+.match-info { flex: 1; }
+.match-info .mt { font-size: 10px; font-weight: 600; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2px; }
+.match-info .ms { font-size: 26px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.match-info .mr { font-size: 11.5px; opacity: 0.85; line-height: 1.4; }
+.match-lbl { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); white-space: nowrap; align-self: flex-start; flex-shrink: 0; }
+
+/* ── Stats row ── */
+.stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.stat { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 10px; text-align: center; }
+.stat .sv { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
+.stat .sl { font-size: 10.5px; color: var(--muted); font-weight: 500; }
+.sv-green { color: var(--green); }
+.sv-red { color: var(--red); }
+.sv-blue { color: var(--blue); }
+
+/* ── Skill bars ── */
+.skill-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.skill-row:last-child { margin-bottom: 0; }
+.sn { width: 130px; flex-shrink: 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-bg { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; border: 1px solid var(--border); overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #4f46e5, #7c3aed); width: 0; transition: width 0.8s ease; }
+.sp { font-size: 11px; color: var(--muted); width: 30px; text-align: right; flex-shrink: 0; font-weight: 600; }
+
+/* ── Keywords ── */
+.kw-legend { display: flex; gap: 12px; margin-bottom: 9px; font-size: 10.5px; color: var(--sub); }
+.kw-leg { display: flex; align-items: center; gap: 4px; }
+.kw-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.kw-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.kw { font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.kw-h { background: var(--alt); color: var(--accent); border: 1px solid #a5b4fc; }
+.kw-m { background: var(--blt); color: var(--blue); border: 1px solid #7dd3fc; }
+.kw-l { background: var(--bg); color: var(--sub); border: 1px solid var(--border); }
+
+/* ── Chips ── */
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.c-miss { background: var(--rlt); color: var(--red); border: 1px solid #fca5a5; }
+.c-have { background: var(--glt); color: var(--green); border: 1px solid #6ee7b7; }
+.gap-sec { margin-bottom: 9px; }
+.gap-sec:last-child { margin-bottom: 0; }
+.gap-lbl { font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+
+/* ── Qual ── */
+.qual-row { display: flex; align-items: flex-start; gap: 9px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.qual-row:last-child { border-bottom: none; padding-bottom: 0; }
+.qs { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; flex-shrink: 0; margin-top: 2px; }
+.qs-met { background: var(--glt); color: var(--green); }
+.qs-part { background: var(--alt2); color: var(--amber); }
+.qs-miss { background: var(--rlt); color: var(--red); }
+
+/* ── Salary ── */
+.sal-big { font-size: 21px; font-weight: 800; color: var(--green); margin-bottom: 3px; }
+.sal-note { font-size: 11px; color: var(--muted); }
+
+/* ── Tips ── */
+.tip-row { display: flex; gap: 9px; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 12px; line-height: 1.5; }
+.tip-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+/* ── Tracker ── */
+.jcard { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--r); padding: 11px 12px; margin-bottom: 8px; }
+.jcard-top { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; }
+.jcard-title { flex: 1; font-size: 12.5px; font-weight: 700; line-height: 1.3; }
+.ssel { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; border: none; cursor: pointer; font-family: var(--font); outline: none; flex-shrink: 0; }
+.ss-saved { background: var(--alt); color: var(--accent); }
+.ss-applied { background: var(--blt); color: var(--blue); }
+.ss-interview { background: var(--alt2); color: var(--amber); }
+.ss-rejected { background: var(--rlt); color: var(--red); }
+.del { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 14px; padding-left: 3px; }
+.del:hover { color: var(--red); }
+.jcard-meta { font-size: 11px; color: var(--muted); }
+.jcard-score { font-size: 11.5px; color: var(--accent); font-weight: 700; margin-top: 3px; }
+.t-empty { text-align: center; padding: 28px; color: var(--muted); font-size: 12px; line-height: 1.8; }
+
+/* ── Plans ── */
+.plan-card { border: 2px solid var(--border); border-radius: var(--r); padding: 13px; background: var(--white); position: relative; margin-bottom: 10px; }
+.plan-card.pop { border-color: var(--accent); }
+.pop-tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: 700; background: var(--accent); color: #fff; padding: 2px 11px; border-radius: 20px; white-space: nowrap; }
+.plan-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.plan-name { font-size: 15px; font-weight: 800; }
+.plan-desc { font-size: 10.5px; color: var(--muted); margin-top: 2px; }
+.amt { font-size: 23px; font-weight: 800; color: var(--accent); }
+.amt-free { color: var(--green); }
+.per { font-size: 10.5px; color: var(--muted); }
+.feats { list-style: none; font-size: 12px; color: var(--sub); margin-bottom: 11px; }
+.feats li { padding: 3px 0; display: flex; align-items: center; gap: 6px; }
+.feats li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+.feats li.no::before { content: '✗'; color: var(--red); }
+.plan-btn { width: 100%; padding: 9px; border-radius: var(--rs); font-family: var(--font); font-size: 12px; font-weight: 700; cursor: pointer; border: 2px solid var(--accent); }
+.plan-btn.filled { background: var(--accent); color: #fff; }
+.plan-btn.filled:hover { background: #3730a3; }
+.plan-btn.outline { background: transparent; color: var(--accent); }
+.plan-btn.outline:hover { background: var(--alt); }
+.plan-btn.cur { background: var(--bg); color: var(--muted); border-color: var(--border); cursor: default; }
+
+/* ── How to use ── */
+.how-step { display: flex; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.how-step:last-child { border-bottom: none; }
+.step-n { width: 25px; height: 25px; flex-shrink: 0; background: var(--accent); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+.step-b h4 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.step-b p { font-size: 12px; color: var(--sub); line-height: 1.6; }
+
+/* ── Misc ── */
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+.hint { font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+.hint a { color: var(--accent); text-decoration: none; font-weight: 600; }
+.sg { margin-bottom: 14px; }
+.made-by { text-align: center; padding: 14px; font-size: 11.5px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 4px; }
+.made-by strong { color: var(--text); }
+.summary-box { background: var(--alt); border: 1px solid #a5b4fc; border-radius: var(--rs); padding: 10px 12px; font-size: 12px; color: #3730a3; line-height: 1.6; margin-bottom: 10px; display: none; }
+.fade-in { animation: fi 0.25s ease; }
+@keyframes fi { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.footer { border-top: 1px solid var(--border); padding: 7px 14px; font-size: 10.5px; color: var(--muted); background: var(--white); display: flex; justify-content: space-between; align-items: center; }
+.footer strong { color: var(--accent); }
+.plat-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.plat-item { font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 20px; background: var(--white); border: 1.5px solid #a5b4fc; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div id="updateBanner"></div>
+
+<!-- Header -->
+<div class="hdr">
+  <div class="logo">📋</div>
+  <div class="brand">
+    <h1>CV<span>matchbox</span></h1>
+    <p>AI job match analyzer</p>
+  </div>
+  <div class="hdr-btns">
+    <button class="full-tab-btn" id="openTabBtn">⤢ Full Tab</button>
+    <span class="plan-pill pp-free" id="planPill" id="planPillClick">Free</span>
+  </div>
+</div>
+
+<!-- Usage bar -->
+<div class="usage-bar" id="usageBar">
+  <span class="u-lbl">Free:</span>
+  <div class="u-track"><div class="u-fill" id="uFill" style="width:0%"></div></div>
+  <span class="u-num" id="uNum">0/50</span>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="analyze">⚡ Analyze</button>
+  <button class="tab-btn" data-tab="mycv">My CV</button>
+  <button class="tab-btn" data-tab="tracker">Tracker</button>
+  <button class="tab-btn" data-tab="plans">Plans</button>
+  <button class="tab-btn" data-tab="settings">Settings</button>
+  <button class="tab-btn" data-tab="howto">How to Use</button>
+</div>
+
+<!-- ═══ ANALYZE ═══ -->
+<div class="panel active" id="tab-analyze">
+
+  <div class="no-job" id="noJobEl" style="display:none">
+    <div class="icon">🔍</div>
+    <h2>Open a Job Listing First</h2>
+    <p>Go to a job post on any of these platforms, then click Analyze.</p>
+    <div class="plat-row">
+      <span class="plat-tag">💼 LinkedIn</span>
+      <span class="plat-tag">🔵 Indeed</span>
+      <span class="plat-tag">🟢 Glassdoor</span>
+      <span class="plat-tag">🟡 Seek</span>
+    </div>
+  </div>
+
+  <div id="formEl">
+    <div class="job-banner" id="jobBanner">
+      <div><span class="jb-plat jb-un" id="platEl">—</span><span style="font-size:11px;color:var(--sub);font-weight:600">Job detected ✓</span></div>
+      <div class="jb-title" id="jTitleEl">—</div>
+      <div class="jb-co" id="jCoEl"></div>
+    </div>
+    <div class="warn-box" id="noCVWarn" style="display:none">
+      ⚠️ <strong>No CV saved.</strong> Go to <strong>My CV</strong> tab and paste your CV to get skill gaps and match score.
+    </div>
+    <button class="btn-primary" id="analyzeBtn">⚡ Analyze This Job</button>
+    <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px">Results in ~5 seconds · Groq AI</div>
+  </div>
+
+  <div class="loading" id="loadEl" style="display:none">
+    <div class="spinner"></div>
+    <h4 id="loadTitle">Reading job…</h4>
+    <p id="loadSub">This takes a few seconds</p>
+  </div>
+
+  <div class="error-state" id="errEl" style="display:none">
+    <div class="ei">⚠️</div>
+    <p id="errMsg">Something went wrong.</p>
+    <button class="btn-secondary" id="tryAgainBtn">← Try Again</button>
+  </div>
+
+  <div class="paywall" id="paywallEl" style="display:none">
+    <div class="lock">🔒</div>
+    <h3>50 Free Analyses Used</h3>
+    <p>Upgrade to continue getting AI match scores, keywords, skill gaps, and salary estimates.</p>
+    <div class="pw-row">
+      <div class="pw-card sel" data-plan="starter"><div class="pn">Starter</div><div class="pp">$3/mo</div><div class="ps">200/month</div></div>
+      <div class="pw-card" data-plan="pro"><div class="pn">Pro</div><div class="pp">$7/mo</div><div class="ps">Unlimited</div></div>
+      <div class="pw-card" data-plan="agency"><div class="pn">Agency</div><div class="pp">$19/mo</div><div class="ps">5 seats</div></div>
+    </div>
+    <button class="btn-primary" id="upgradeBtn" style="margin-top:0">Upgrade Now →</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">Stripe · Cancel anytime</div>
+  </div>
+
+  <div id="resultsEl" style="display:none" class="fade-in">
+    <div class="summary-box" id="summaryBox"></div>
+    <div class="match-card">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 70 70">
+          <circle class="track" cx="35" cy="35" r="30"/>
+          <circle class="fill" id="ringFill" cx="35" cy="35" r="30"/>
+        </svg>
+        <div class="ring-num" id="ringNum">—</div>
+      </div>
+      <div class="match-info">
+        <div class="mt">Match Score</div>
+        <div class="ms" id="matchPct">—</div>
+        <div class="mr" id="matchReason">Save your CV for a personalised score.</div>
+      </div>
+      <span class="match-lbl" id="matchLbl">—</span>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="sv sv-green" id="stHave">—</div><div class="sl">Skills You Have</div></div>
+      <div class="stat"><div class="sv sv-red" id="stMiss">—</div><div class="sl">Skills Missing</div></div>
+      <div class="stat"><div class="sv sv-blue" id="stKw">—</div><div class="sl">Key Words</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔑 Key Words <span class="badge" id="kwBadge"></span></div>
+      <div class="kw-legend">
+        <div class="kw-leg"><div class="kw-dot" style="background:#4f46e5"></div>Must-have</div>
+        <div class="kw-leg"><div class="kw-dot" style="background:#0369a1"></div>Important</div>
+        <div class="kw-leg"><div class="kw-dot" style="background:#9399b2"></div>General</div>
+      </div>
+      <div class="kw-grid" id="kwGrid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Top Required Skills</div>
+      <div id="skillBars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎓 Qualification Match</div>
+      <div id="qualDiv"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 Your Skill Gaps</div>
+      <div id="gapDiv"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💰 Salary Estimate</div>
+      <div class="sal-big" id="salBig">—</div>
+      <div class="sal-note" id="salNote"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💡 Resume Tips</div>
+      <div id="tipsDiv"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:2px">
+      <button class="btn-secondary" id="saveJobBtn" style="flex:1">🔖 Save to Tracker</button>
+      <button class="btn-secondary" id="newAnalysisBtn" style="flex:1">↺ New Analysis</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MY CV ═══ -->
+<div class="panel" id="tab-mycv">
+  <div class="info-box">💡 <strong>Save your CV once here</strong> — used automatically every time you analyze a job. If copy-paste doesn't work, click <strong>⤢ Full Tab</strong> in the header.</div>
+  <div class="sg">
+    <label>Paste Your CV / Resume Text</label>
+    <textarea id="cvArea" rows="13" placeholder="Paste your full CV text here…&#10;&#10;Include: work experience, skills, education, certifications."></textarea>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <button class="btn-primary" id="saveCVBtn" style="flex:1;margin-top:0">Save My CV</button>
+    <button class="btn-secondary" id="clearCVBtn">Clear</button>
+  </div>
+  <div class="ok-msg" id="cvOk">✓ CV saved!</div>
+</div>
+
+<!-- ═══ TRACKER ═══ -->
+<div class="panel" id="tab-tracker">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div><div style="font-size:14px;font-weight:800">Job Tracker</div><div style="font-size:11.5px;color:var(--muted);margin-top:1px"><span id="jCount">0</span> saved</div></div>
+    <button class="btn-secondary" id="clearJobsBtn" style="font-size:11px">Clear All</button>
+  </div>
+  <div id="jList"><div class="t-empty">📌<br><br>No saved jobs yet.<br>Analyze a job and click "Save to Tracker".</div></div>
+</div>
+
+<!-- ═══ PLANS ═══ -->
+<div class="panel" id="tab-plans">
+  <div style="text-align:center;margin-bottom:16px"><h2 style="font-size:17px;font-weight:800;margin-bottom:4px">Choose Your Plan</h2><p style="font-size:12px;color:var(--sub)">Start free · Upgrade when ready</p></div>
+
+  <div class="plan-card">
+    <div class="plan-top"><div><div class="plan-name">Free</div><div class="plan-desc">50 lifetime analyses</div></div><div><div class="amt amt-free">$0</div><div class="per">forever</div></div></div>
+    <ul class="feats"><li>50 job analyses (lifetime)</li><li>Keyword detection</li><li>Skill gap analysis</li><li>Salary estimate</li><li>Job tracker</li><li class="no">Match score</li><li class="no">Qualification matching</li></ul>
+    <button class="plan-btn cur">Current Plan</button>
+  </div>
+
+  <div class="plan-card">
+    <div class="plan-top"><div><div class="plan-name">Starter</div><div class="plan-desc">Active job seekers</div></div><div><div class="amt">$3</div><div class="per">/month</div></div></div>
+    <ul class="feats"><li>200 analyses / month</li><li>All Free features</li><li>Full match score</li><li>Qualification matching</li><li class="no">Unlimited analyses</li></ul>
+    <button class="plan-btn filled" data-checkout="starter">Get Starter →</button>
+  </div>
+
+  <div class="plan-card pop">
+    <div class="pop-tag">⭐ Most Popular</div>
+    <div class="plan-top"><div><div class="plan-name">Pro</div><div class="plan-desc">Serious job hunters</div></div><div><div class="amt">$7</div><div class="per">/month</div></div></div>
+    <ul class="feats"><li>Unlimited analyses</li><li>All Starter features</li><li>Priority AI</li><li>Priority support</li></ul>
+    <button class="plan-btn filled" data-checkout="pro">Get Pro →</button>
+  </div>
+
+  <div class="plan-card">
+    <div class="plan-top"><div><div class="plan-name">Agency</div><div class="plan-desc">Teams & recruiters</div></div><div><div class="amt">$19</div><div class="per">/month</div></div></div>
+    <ul class="feats"><li>5 user seats</li><li>All Pro features</li><li>Team tracker</li><li>Dedicated support</li></ul>
+    <button class="plan-btn outline" data-checkout="agency">Get Agency →</button>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px">💳 Stripe · Cancel anytime · No hidden fees</div>
+  <div class="made-by">Made with ❤️ by <strong>Minhal Haider</strong></div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div class="panel" id="tab-settings">
+  <div class="sg"><label>Groq API Key (Free)</label><input type="password" id="apiKeyEl" placeholder="gsk_…"/><div class="hint">Free at <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a> → Sign up → API Keys → Create</div></div>
+  <div class="sg"><label>Salary Currency</label><select id="currencyEl"><option value="USD">USD ($)</option><option value="PKR">PKR (₨)</option><option value="GBP">GBP (£)</option><option value="EUR">EUR (€)</option><option value="AED">AED</option><option value="SAR">SAR</option><option value="AUD">AUD</option><option value="CAD">CAD</option></select></div>
+  <div class="sg"><label>License Key (paid plans)</label><input type="text" id="licenseEl" placeholder="CVMB-XXXX-XXXX-XXXX"/><div class="hint">After payment, enter your license key here to activate your plan.</div></div>
+  <button class="btn-primary" id="saveSettingsBtn">Save Settings</button>
+  <div class="ok-msg" id="settOk" style="text-align:center">✓ Settings saved!</div>
+  <div class="divider" style="margin-top:16px"></div>
+  <div class="hint"><strong style="color:var(--text)">CVmatchbox v4.1</strong><br>Your API key and CV are stored locally on your device only.</div>
+</div>
+
+<!-- ═══ HOW TO USE ═══ -->
+<div class="panel" id="tab-howto">
+  <div style="background:var(--alt);border:1.5px solid #a5b4fc;border-radius:var(--r);padding:12px;margin-bottom:14px">
+    <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">✅ Supported Platforms</div>
+    <div class="plat-list"><span class="plat-item">💼 LinkedIn</span><span class="plat-item">🔵 Indeed</span><span class="plat-item">🟢 Glassdoor</span><span class="plat-item">🟡 Seek</span></div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:5px">📖 Step-by-Step</div>
+    <div class="how-step"><div class="step-n">1</div><div class="step-b"><h4>Get Free Groq API Key</h4><p>Go to <strong>console.groq.com</strong> → Sign up → API Keys → Create Key. Paste it in <strong>Settings</strong>.</p></div></div>
+    <div class="how-step"><div class="step-n">2</div><div class="step-b"><h4>Save Your CV Once</h4><p>Open <strong>My CV</strong> tab → paste your CV text → Save. Used automatically every time.</p></div></div>
+    <div class="how-step"><div class="step-n">3</div><div class="step-b"><h4>Open a Job Listing</h4><p>Navigate to a job on LinkedIn, Indeed, Glassdoor, or Seek. Make sure the description is fully loaded.</p></div></div>
+    <div class="how-step"><div class="step-n">4</div><div class="step-b"><h4>Click ⚡ Analyze</h4><p>Open CVmatchbox → click Analyze. Results in ~5 seconds.</p></div></div>
+    <div class="how-step"><div class="step-n">5</div><div class="step-b"><h4>Track Applications</h4><p>Save jobs to <strong>Tracker</strong>. Update: Saved → Applied → Interview → Rejected.</p></div></div>
+  </div>
+  <div class="made-by">Made with ❤️ by <strong>Minhal Haider</strong></div>
+</div>
+
+<div class="footer">
+  <span>CVmatchbox · <strong>Groq AI</strong></span>
+  <span><strong id="todayEl">0</strong> today</span>
+</div>
+
+<script src="src/popup.js"></script>
+</body>
+</html>
